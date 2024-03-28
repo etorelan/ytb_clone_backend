@@ -1,4 +1,4 @@
-channels-redis==4.0.0
+channels-redis==4.2.0
 coverage==7.2.7
 cython==3.0.9
 daphne==4.0.0
