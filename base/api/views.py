@@ -28,7 +28,7 @@ from base.models import *
 LOAD_VIDEOS_PER_PAGE = 18
 MAX_VIDEO_SIZE = 20 * 1024 * 1024
 MAX_VIDEO_SIZE_STR = "20 MB"
-# app = firebase_admin.initialize_app()
+app = firebase_admin.initialize_app()
 db = firestore.client()
 
 
