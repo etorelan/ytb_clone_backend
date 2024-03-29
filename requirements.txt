@@ -16,7 +16,7 @@ pyopenssl==23.0.0
 pyparsing==3.0.6
 pysocks==1.7.1
 python-dotenv==0.16.0
-python-telegram-bot==13.14
+python-ffmpeg==2.0.10
 selenium==4.8.0
 service-identity==21.1.0
 stripe==5.4.0
