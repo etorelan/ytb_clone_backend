@@ -1,7 +1,7 @@
 version: '3.8'
 services:
    backend:
-      container_name: django-container
+      container_name: django-container-ytb
       build: .
       volumes:
          - .:/app
@@ -12,7 +12,7 @@ services:
       env_file:
          - .env
    db:
-      container_name: postgres-container
+      container_name: postgres-container-ytb
       image: postgres
       restart: always
       environment:
@@ -20,7 +20,7 @@ services:
          - POSTGRES_USER=postgres
          - POSTGRES_DB=ytb_clone
       ports:
-         - '5432:5432'
+         - '5433:5432' 
       volumes:
          - postgresdb:/var/lib/postgresql
 volumes:
