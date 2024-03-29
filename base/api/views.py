@@ -1,5 +1,5 @@
 import os, json, subprocess
-from firebase_admin import firestore, auth, initialize_app
+from firebase_admin import firestore, auth, initialize_app, credentials
 
 from datetime import datetime, timedelta
 
@@ -27,7 +27,12 @@ from base.models import *
 LOAD_VIDEOS_PER_PAGE = 18
 MAX_VIDEO_SIZE = 20 * 1024 * 1024
 MAX_VIDEO_SIZE_STR = "20 MB"
-app = initialize_app()
+
+SERVICE_ACCOUNT_FILE = json.loads(os.getenv('FIREBASE_CREDENTIALS'))
+cred = credentials.Certificate(SERVICE_ACCOUNT_FILE)
+initialize_app(cred)
+
+# Now you can use firestore.client() to get the Firestore client
 db = firestore.client()
 
 
