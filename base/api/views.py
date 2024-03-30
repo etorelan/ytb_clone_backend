@@ -8,6 +8,8 @@ from django.conf import settings
 from django.http import JsonResponse, FileResponse, HttpResponse
 from django.shortcuts import get_object_or_404
 
+from ffmpeg import FFmpeg
+
 from wsgiref.util import FileWrapper
 
 from rest_framework import status
@@ -28,7 +30,7 @@ LOAD_VIDEOS_PER_PAGE = 18
 MAX_VIDEO_SIZE = 20 * 1024 * 1024
 MAX_VIDEO_SIZE_STR = "20 MB"
 
-SERVICE_ACCOUNT_FILE = json.loads(os.getenv('FIREBASE_CREDENTIALS'))
+SERVICE_ACCOUNT_FILE = json.loads(os.getenv("FIREBASE_CREDENTIALS"))
 cred = credentials.Certificate(SERVICE_ACCOUNT_FILE)
 initialize_app(cred)
 
@@ -47,7 +49,9 @@ def video_upload(request):
         video_description = request.data.get("videoDescription")
 
         if video_file.size > MAX_VIDEO_SIZE:
-            return JsonResponse({"message": f"Maximal video size is {MAX_VIDEO_SIZE_STR}"}, status=400)
+            return JsonResponse(
+                {"message": f"Maximal video size is {MAX_VIDEO_SIZE_STR}"}, status=400
+            )
         if (
             len(video_title) > MAX_VIDEO_TITLE_LENGTH
             or len(video_description) > MAX_VIDEO_DESCRIPTION_LENGTH
@@ -61,9 +65,6 @@ def video_upload(request):
             temp_input_file.write(input_file_content)
 
         with NamedTemporaryFile(suffix=".mp4", delete=False) as temp_output_file:
-            # convert the video to .mp4 format with 360p quality
-            ffmpeg_command = f'ffmpeg -y -i "{temp_input_file.name}" -vf "scale=640:360" -c:v libx264 -c:a aac "{temp_output_file.name}"'
-
             try:
                 if ProcessedVideo.objects.filter(video_title=video_title).exists():
                     return JsonResponse(
@@ -71,10 +72,28 @@ def video_upload(request):
                     )
 
                 thumbnail_webp_file = NamedTemporaryFile(delete=False, suffix=".webp")
-                ffmpeg_thumbnail_command = f'ffmpeg -y -i "{temp_thumbnail_file.name}" -vf "scale=640:360" "{thumbnail_webp_file.name}"'
-                subprocess.run(ffmpeg_thumbnail_command, shell=True, check=True)
+                ffmpeg_command = (
+                    FFmpeg()
+                    .option("y")
+                    .input(temp_input_file.name)
+                    .output(
+                        temp_output_file.name,
+                        {"codec:v": "libx264", "codec:a": "aac"},
+                        vf="scale=640:360",
+                    )
+                )
+                ffmpeg_thumbnail_command = (
+                    FFmpeg()
+                    .option("y")
+                    .input(temp_thumbnail_file.name)
+                    .output(
+                        thumbnail_webp_file.name,
+                        vf="scale=640:360"
+                    )
+                )
+                ffmpeg_thumbnail_command.execute()
+                ffmpeg_command.execute()
 
-                subprocess.run(ffmpeg_command, shell=True, check=True)
 
                 converted_video = ProcessedVideo()
                 converted_video.video_title = video_title
@@ -359,7 +378,7 @@ def subscriptions(request):
     weeksAgo = data["weeksAgo"]
     subscriptions = data["subscriptions"]
 
-    cutoff = datetime.now() - timedelta(weeks=2*weeksAgo)
+    cutoff = datetime.now() - timedelta(weeks=2 * weeksAgo)
     new_subscriptions = [[] for _ in range(len(subscriptions))]
     res = []
     max_iter = 30
