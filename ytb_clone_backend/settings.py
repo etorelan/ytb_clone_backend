@@ -82,18 +82,18 @@ WSGI_APPLICATION = 'ytb_clone_backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "ytb_clone",
-        "USER":"postgres",
-        "PASSWORD": "7375",
-        "HOST":"localhost"
-    }
-}
 # DATABASES = {
-#     "default": dj_database_url.parse(os.getenv("DATABASE_URL"))
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "NAME": "ytb_clone",
+#         "USER":"postgres",
+#         "PASSWORD": "7375",
+#         "HOST":"localhost"
+#     }
 # }
+DATABASES = {
+    "default": dj_database_url.parse(os.getenv("DATABASE_URL"))
+}
 
 
 # Password validation
